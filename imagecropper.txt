@@ -1,0 +1,124 @@
+//TypeScript Code
+
+fileChangeEvent(event: any): void {
+      
+  this.imageChangedEvent = event;
+  var size = event.target.files[0].size;
+  if(size < 1048576){
+  var type = event.target.files[0].type.split('/')[1];
+  if(type == 'jpg' || type == 'png' || type == 'jpeg'){
+  setTimeout(() => {
+    $("#clickProfileModal").click();
+  }, 500);   
+  }
+  else
+{
+this.toastr.warning("You can only upload jpg, png and jpeg files")
+}
+  }
+  else{
+    this.toastr.warning("Maximum image size of 1mb")
+  }
+}
+
+
+imageCropped(event: ImageCroppedEvent) {
+
+    
+    this.croppedImage = event.base64;
+  // var data = this.base64toBlob(this.croppedImage,'')
+  var type = this.croppedImage.split(':')[1].split(';')[0].split('/')[1];
+  // alert(type)
+  
+var file = this.dataURLtoFile(this.croppedImage,'profileImage.'+type);
+this.profileImage = file;
+if(file !=null){
+  this.ShowSaveButton = true;
+}
+
+}
+
+
+submitProfileImage(){
+  this.onSelect(this.profileImage,'Image')
+}
+
+imageLoaded() {
+  // show cropper
+}
+cropperReady() {
+  // cropper ready
+}
+loadImageFailed() {
+  // show message
+}
+
+
+dataURLtoFile(dataurl:any, filename:any) {
+ 
+  var arr = dataurl.split(','),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), 
+      n = bstr.length, 
+      u8arr = new Uint8Array(n);
+      
+  while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+  }
+  
+  return new File([u8arr], filename, {type:mime});
+}
+
+
+
+
+
+//Html
+
+
+
+
+
+<div class="modal fade" id="profileCrop" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+<div class="modal-dialog" role="document">
+<div class="modal-content">
+<div class="modal-h header{{service.PthemeColor}}">
+<span class="modal-title" id="exampleModalLabel1" >Profile Image</span>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true" style="font-size: 17px;">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+<image-cropper
+[imageChangedEvent]="imageChangedEvent"
+[maintainAspectRatio]="true"
+[aspectRatio]="4 / 4"
+[cropperMinWidth]="150"
+format="png"
+(imageCropped)="imageCropped($event)"
+(imageLoaded)="imageLoaded()"
+(cropperReady)="cropperReady()"
+(loadImageFailed)="loadImageFailed()"
+></image-cropper>
+
+</div>
+<div class="modal-footer newfooter" style="padding: 15px 25px 12px 25px;">
+<button type="button" id="closeModalImage" class="pt-button" style="background:#8b8b8b" data-dismiss="modal"><span>Close</span></button>
+<button type="button" (click)="submitProfileImage()" class="pt-button resButton header{{service.PthemeColor}}"><span>Save</span></button>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<input style="width: 1px;height:1px;color:white;visibility:hidden" type="file" class="form-control dropify input" accept="image/*" id="uploadProfileImage" name="Image" formControlName="Image"
+(change)="fileChangeEvent($event)">
